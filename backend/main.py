@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+import asyncio
 import httpx
 from typing import Optional
+from functools import partial
 
 PANDASCORE_BASE = "https://api.pandascore.co"
 
@@ -44,6 +46,16 @@ def safe_div(a, b, decimals=2):
     return round(a / b, decimals) if b else 0.0
 
 
+async def run_query(fn, *args, **kwargs):
+    """Run a synchronous Supabase query in a thread pool."""
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, partial(fn, *args, **kwargs))
+
+
+def _fetch_table(table: str):
+    return supabase.table(table).select("*").eq("player_id", PLAYER_ID).execute().data or []
+
+
 # ── players ────────────────────────────────────────────────────────────────────
 
 @app.get("/api/player")
@@ -57,10 +69,12 @@ def get_player():
 # ── dashboard summary ──────────────────────────────────────────────────────────
 
 @app.get("/api/dashboard")
-def get_dashboard():
-    fn = supabase.table("fortnite_matches").select("*").eq("player_id", PLAYER_ID).execute().data or []
-    vl = supabase.table("valorant_matches").select("*").eq("player_id", PLAYER_ID).execute().data or []
-    cs = supabase.table("csgo_matches").select("*").eq("player_id", PLAYER_ID).execute().data or []
+async def get_dashboard():
+    fn, vl, cs = await asyncio.gather(
+        run_query(_fetch_table, "fortnite_matches"),
+        run_query(_fetch_table, "valorant_matches"),
+        run_query(_fetch_table, "csgo_matches"),
+    )
 
     # Fortnite summary
     fn_wins = sum(1 for m in fn if m["placement"] == 1)
@@ -135,8 +149,8 @@ def get_fortnite_matches(
 
 
 @app.get("/api/fortnite/stats")
-def get_fortnite_stats():
-    data = supabase.table("fortnite_matches").select("*").eq("player_id", PLAYER_ID).execute().data or []
+async def get_fortnite_stats():
+    data = await run_query(_fetch_table, "fortnite_matches")
     if not data:
         return {}
     wins = sum(1 for m in data if m["placement"] == 1)
@@ -200,8 +214,8 @@ def get_valorant_matches(
 
 
 @app.get("/api/valorant/stats")
-def get_valorant_stats():
-    data = supabase.table("valorant_matches").select("*").eq("player_id", PLAYER_ID).execute().data or []
+async def get_valorant_stats():
+    data = await run_query(_fetch_table, "valorant_matches")
     if not data:
         return {}
     wins = sum(1 for m in data if m["outcome"] == "Win")
@@ -276,8 +290,8 @@ def get_csgo_matches(
 
 
 @app.get("/api/csgo/stats")
-def get_csgo_stats():
-    data = supabase.table("csgo_matches").select("*").eq("player_id", PLAYER_ID).execute().data or []
+async def get_csgo_stats():
+    data = await run_query(_fetch_table, "csgo_matches")
     if not data:
         return {}
     wins = sum(1 for m in data if m["outcome"] == "Win")
