@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-dark-800 text-gray-100 font-sans;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-dark-900;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-dark-500 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+  }
+}
+
+@layer components {
+  .stat-card {
+    @apply bg-dark-700 rounded-xl p-5 border border-dark-600 hover:border-dark-500 transition-colors;
+  }
+  .section-title {
+    @apply text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3;
+  }
+  .badge-win {
+    @apply bg-green-900/40 text-green-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+  .badge-loss {
+    @apply bg-red-900/40 text-red-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+  .badge-draw {
+    @apply bg-yellow-900/40 text-yellow-400 px-2 py-0.5 rounded text-xs font-medium;
+  }
+}

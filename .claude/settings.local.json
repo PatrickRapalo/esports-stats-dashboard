@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:/Users/patri/OneDrive/Desktop/E-sports Website/backend\" && mkdir -p \"C:/Users/patri/OneDrive/Desktop/E-sports Website/frontend/src/components\" && mkdir -p \"C:/Users/patri/OneDrive/Desktop/E-sports Website/frontend/src/pages\" && mkdir -p \"C:/Users/patri/OneDrive/Desktop/E-sports Website/frontend/public\" && mkdir -p \"C:/Users/patri/OneDrive/Desktop/E-sports Website/database\" && echo \"Directories created\")",
+      "Bash(gh --version)",
+      "Bash(git --version)"
+    ]
+  }
+}
