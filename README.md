@@ -1,3 +1,7 @@
+[Link](https://esports-stats-dashboard-c54jer5ze-patrickrapalos-projects.vercel.app/)
+
+
+
 # E-sports Stats Dashboard
 
 A full-stack e-sports stats dashboard tracking player performance across Fortnite, Valorant, and CS:GO. Inspired by Tracker.gg — dark-themed, data-dense, and professional.
