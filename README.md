@@ -1,4 +1,4 @@
-[Link](https://esports-stats-dashboard-c54jer5ze-patrickrapalos-projects.vercel.app/)
+[Link](https://esports-stats-dashboard-hetmo2ki2-patrickrapalos-projects.vercel.app/)
 
 
 
