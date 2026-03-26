@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Trophy, Crosshair, Target, Swords, TrendingUp, Zap } from 'lucide-react'
+import { Trophy, Crosshair, Swords, TrendingUp, Zap } from 'lucide-react'
 import { api } from '../api'
 import StatCard from '../components/StatCard'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -30,7 +30,6 @@ function GameSummaryCard({ title, icon: Icon, color, borderColor, data, linkTo, 
 
 function RecentMatchRow({ match }) {
   const gameBg = {
-    Fortnite: 'bg-yellow-900/30 text-yellow-300',
     Valorant: 'bg-red-900/30 text-red-300',
     'CS:GO':  'bg-blue-900/30 text-blue-300',
   }
@@ -68,11 +67,10 @@ export default function Dashboard() {
   if (error) return <div className="max-w-3xl"><ErrorBanner message={error} /></div>
   if (!data)  return <LoadingSpinner label="Loading dashboard..." />
 
-  const { fortnite: fn, valorant: vl, csgo: cs, recent_matches } = data
+  const { valorant: vl, csgo: cs, recent_matches } = data
 
   // Best highlight card
   const bestGame = [
-    { name: 'Fortnite', wr: fn.win_rate, color: 'text-yellow-400' },
     { name: 'Valorant', wr: vl.win_rate, color: 'text-red-400' },
     { name: 'CS:GO',    wr: cs.win_rate, color: 'text-blue-400' },
   ].sort((a, b) => b.wr - a.wr)[0]
@@ -97,13 +95,13 @@ export default function Dashboard() {
         </div>
         <div className="text-right hidden sm:block">
           <div className="text-xs text-gray-600 mb-1">Total Matches</div>
-          <div className="text-2xl font-bold text-white">{fn.total_matches + vl.total_matches + cs.total_matches}</div>
+          <div className="text-2xl font-bold text-white">{vl.total_matches + cs.total_matches}</div>
         </div>
       </div>
 
       {/* Top stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Matches" value={fn.total_matches + vl.total_matches + cs.total_matches} icon={Zap} />
+        <StatCard label="Total Matches" value={vl.total_matches + cs.total_matches} icon={Zap} />
         <StatCard label="Best Win Rate" value={`${bestGame.wr}%`} icon={TrendingUp} color="text-green-400" />
         <StatCard label="Val KD Ratio"  value={vl.kd_ratio} icon={Crosshair} color="text-red-400" />
         <StatCard label="CSGO KD Ratio" value={cs.kd_ratio} icon={Swords} color="text-blue-400" />
@@ -112,19 +110,7 @@ export default function Dashboard() {
       {/* Game summaries */}
       <div>
         <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-3">Game Summaries</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <GameSummaryCard
-            title="Fortnite" icon={Target} color="text-yellow-400" borderColor="border-yellow-500/30"
-            linkTo="/fortnite"
-            stats={[
-              { label: 'Matches', value: fn.total_matches },
-              { label: 'Wins',    value: fn.wins },
-              { label: 'Win%',    value: `${fn.win_rate}%` },
-              { label: 'Avg K',   value: fn.avg_kills },
-              { label: 'Avg Plc', value: `#${fn.avg_placement}` },
-              { label: 'Accuracy',value: `${fn.avg_accuracy}%` },
-            ]}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <GameSummaryCard
             title="Valorant" icon={Crosshair} color="text-accent-red" borderColor="border-red-500/30"
             linkTo="/valorant"

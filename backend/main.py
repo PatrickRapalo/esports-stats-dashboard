@@ -71,23 +71,10 @@ def get_player():
 
 @app.get("/api/dashboard")
 async def get_dashboard():
-    fn, vl, cs = await asyncio.gather(
-        run_query(_fetch_table, "fortnite_matches"),
+    vl, cs = await asyncio.gather(
         run_query(_fetch_table, "valorant_matches"),
         run_query(_fetch_table, "csgo_matches"),
     )
-
-    # Fortnite summary
-    fn_wins = sum(1 for m in fn if m["placement"] == 1)
-    fn_kills = sum(m["kills"] for m in fn)
-    fn_summary = {
-        "total_matches": len(fn),
-        "wins": fn_wins,
-        "win_rate": round(fn_wins / len(fn) * 100, 1) if fn else 0,
-        "avg_kills": round(fn_kills / len(fn), 1) if fn else 0,
-        "avg_placement": round(sum(m["placement"] for m in fn) / len(fn), 1) if fn else 0,
-        "avg_accuracy": round(sum(m["accuracy"] for m in fn) / len(fn), 1) if fn else 0,
-    }
 
     # Valorant summary
     vl_wins = sum(1 for m in vl if m["outcome"] == "Win")
@@ -118,8 +105,6 @@ async def get_dashboard():
 
     # Recent matches (last 5 across all games, sorted by date)
     recent = []
-    for m in fn[-5:]:
-        recent.append({"game": "Fortnite", "result": "Win" if m["placement"] == 1 else f"#{m['placement']}", "kills": m["kills"], "date": m["match_date"]})
     for m in vl[-5:]:
         recent.append({"game": "Valorant", "result": m["outcome"], "kills": m["kills"], "date": m["match_date"]})
     for m in cs[-5:]:
@@ -127,69 +112,9 @@ async def get_dashboard():
     recent.sort(key=lambda x: x["date"], reverse=True)
 
     return {
-        "fortnite": fn_summary,
         "valorant": vl_summary,
         "csgo": cs_summary,
         "recent_matches": recent[:10],
-    }
-
-
-# ── fortnite ───────────────────────────────────────────────────────────────────
-
-@app.get("/api/fortnite/matches")
-def get_fortnite_matches(
-    limit: int = Query(50, ge=1, le=200),
-    offset: int = Query(0, ge=0),
-    game_mode: Optional[str] = None,
-):
-    q = supabase.table("fortnite_matches").select("*").eq("player_id", PLAYER_ID).order("match_date", desc=True)
-    if game_mode:
-        q = q.eq("game_mode", game_mode)
-    res = q.range(offset, offset + limit - 1).execute()
-    return res.data or []
-
-
-@app.get("/api/fortnite/stats")
-async def get_fortnite_stats():
-    data = await run_query(_fetch_table, "fortnite_matches")
-    if not data:
-        return {}
-    wins = sum(1 for m in data if m["placement"] == 1)
-    top5 = sum(1 for m in data if m["placement"] <= 5)
-    top10 = sum(1 for m in data if m["placement"] <= 10)
-    total_kills = sum(m["kills"] for m in data)
-    total_assists = sum(m["assists"] for m in data)
-
-    # Per-mode breakdown
-    modes = {}
-    for m in data:
-        gm = m["game_mode"]
-        if gm not in modes:
-            modes[gm] = {"matches": 0, "wins": 0, "kills": 0}
-        modes[gm]["matches"] += 1
-        if m["placement"] == 1:
-            modes[gm]["wins"] += 1
-        modes[gm]["kills"] += m["kills"]
-
-    # Performance over time (last 30 matches)
-    timeline = [
-        {"date": m["match_date"][:10], "kills": m["kills"], "placement": m["placement"]}
-        for m in sorted(data, key=lambda x: x["match_date"])[-30:]
-    ]
-
-    return {
-        "total_matches": len(data),
-        "wins": wins,
-        "win_rate": round(wins / len(data) * 100, 1),
-        "top5_rate": round(top5 / len(data) * 100, 1),
-        "top10_rate": round(top10 / len(data) * 100, 1),
-        "avg_kills": round(total_kills / len(data), 2),
-        "avg_assists": round(total_assists / len(data), 2),
-        "avg_placement": round(sum(m["placement"] for m in data) / len(data), 1),
-        "avg_accuracy": round(sum(m["accuracy"] for m in data) / len(data), 1),
-        "total_kills": total_kills,
-        "mode_breakdown": modes,
-        "timeline": timeline,
     }
 
 
@@ -344,25 +269,10 @@ async def get_csgo_stats():
 @app.get("/api/matches")
 def get_all_matches(
     limit: int = Query(100, ge=1, le=500),
-    game: Optional[str] = Query(None, description="fortnite | valorant | csgo"),
+    game: Optional[str] = Query(None, description="valorant | csgo"),
     outcome: Optional[str] = None,
 ):
     results = []
-
-    if not game or game == "fortnite":
-        fn = supabase.table("fortnite_matches").select("*").eq("player_id", PLAYER_ID).order("match_date", desc=True).execute().data or []
-        for m in fn:
-            results.append({
-                "game": "Fortnite",
-                "result": "Win" if m["placement"] == 1 else f"#{m['placement']}",
-                "outcome": "Win" if m["placement"] == 1 else "Loss",
-                "kills": m["kills"],
-                "deaths": None,
-                "assists": m["assists"],
-                "detail": f"Placement #{m['placement']} • {m['game_mode']}",
-                "date": m["match_date"],
-                "map": None,
-            })
 
     if not game or game == "valorant":
         vl = supabase.table("valorant_matches").select("*").eq("player_id", PLAYER_ID).order("match_date", desc=True).execute().data or []

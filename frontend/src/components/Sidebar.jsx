@@ -1,9 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, History, Crosshair, Target, Swords, Trophy } from 'lucide-react'
+import { LayoutDashboard, History, Crosshair, Swords, Trophy } from 'lucide-react'
 
 const links = [
   { to: '/',            label: 'Dashboard',     icon: LayoutDashboard },
-  { to: '/fortnite',    label: 'Fortnite',       icon: Target },
   { to: '/valorant',    label: 'Valorant',       icon: Crosshair },
   { to: '/csgo',        label: 'CS:GO',          icon: Swords },
   { to: '/matches',     label: 'Match History',  icon: History },
@@ -11,7 +10,6 @@ const links = [
 ]
 
 const gameColors = {
-  '/fortnite':    'text-yellow-400',
   '/valorant':    'text-accent-red',
   '/csgo':        'text-accent-blue',
   '/tournaments': 'text-yellow-400',

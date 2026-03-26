@@ -10,12 +10,6 @@ export const api = {
   player: () => get('/api/player'),
   dashboard: () => get('/api/dashboard'),
 
-  fortniteMatches: (params = {}) => {
-    const q = new URLSearchParams(params).toString()
-    return get(`/api/fortnite/matches${q ? '?' + q : ''}`)
-  },
-  fortniteStats: () => get('/api/fortnite/stats'),
-
   valorantMatches: (params = {}) => {
     const q = new URLSearchParams(params).toString()
     return get(`/api/valorant/matches${q ? '?' + q : ''}`)

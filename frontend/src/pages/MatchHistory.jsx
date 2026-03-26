@@ -5,7 +5,7 @@ import MatchTable from '../components/MatchTable'
 import LoadingSpinner from '../components/LoadingSpinner'
 import ErrorBanner from '../components/ErrorBanner'
 
-const GAMES   = ['All', 'Fortnite', 'Valorant', 'CS:GO']
+const GAMES   = ['All', 'Valorant', 'CS:GO']
 const OUTCOMES = ['All', 'Win', 'Loss', 'Draw']
 
 export default function MatchHistory() {
